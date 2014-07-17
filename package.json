@@ -10,15 +10,12 @@
     "react": "~0.8"
   },
   "devDependencies": {
-    "reactify": "~0.4.0",
-    "jsxc": "^0.10.0",
     "gulp": "^3.8.6",
-    "gulp-react": "^0.4.0"
-  },
-  "browserify": {
-    "transform": [
-      "reactify"
-    ]
+    "gulp-react": "^0.4.0",
+    "chalk": "^0.5.1",
+    "gulp-util": "^2.2.20",
+    "rimraf": "^2.2.8",
+    "gulp-rimraf": "^0.1.0"
   },
   "window": {
     "title": "Ouirc blu",
