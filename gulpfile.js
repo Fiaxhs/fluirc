@@ -1,6 +1,6 @@
 var gulp = require('gulp')
 
-gulp.task('js', function () {
+gulp.task('js', ['clean'], function () {
     var react = require('gulp-react')
 
     return gulp.src('src/**/*.js')
@@ -15,7 +15,7 @@ gulp.task('clean', function () {
         .pipe(rimraf())
 })
 
-gulp.task('move', ['clean', 'js'], function () {
+gulp.task('build', ['js'], function () {
     var filesToMove = [
         'js/**/*.js',
         'css/**/*.css',
@@ -46,8 +46,8 @@ gulp.task('blabla', function () {
         pipe(gutil.noop())
 })
 
-gulp.task('dev', ['blabla', 'move'], function () {
-    gulp.watch(['src/**/*.js', 'css/**/*.css', '*.html', '*.json'], ['move'])
+gulp.task('dev', ['blabla', 'build'], function () {
+    gulp.watch(['src/**/*.js', 'css/**/*.css', '*.html', '*.json'], ['build'])
 })
 
 gulp.task('default', ['dev'])
