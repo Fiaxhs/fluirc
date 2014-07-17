@@ -47,7 +47,7 @@ gulp.task('blabla', function () {
 })
 
 gulp.task('dev', ['blabla', 'move'], function () {
-    gulp.watch(['src/**/*.js'], ['move'])
+    gulp.watch(['src/**/*.js', 'css/**/*.css', '*.html', '*.json'], ['move'])
 })
 
 gulp.task('default', ['dev'])
