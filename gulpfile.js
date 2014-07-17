@@ -11,7 +11,7 @@ gulp.task('js', function () {
 gulp.task('clean', function () {
     var rimraf = require('gulp-rimraf')
 
-    return gulp.src('build', { read : false })
+    return gulp.src(['build', 'js'], { read : false })
         .pipe(rimraf())
 })
 
