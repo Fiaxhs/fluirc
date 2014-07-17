@@ -1,6 +1,7 @@
 var gulp = require('gulp')
+,   livereload = require('gulp-livereload')
 
-gulp.task('js', ['clean'], function () {
+gulp.task('js', function () {
     var react = require('gulp-react')
 
     return gulp.src('src/**/*.js')
@@ -9,10 +10,9 @@ gulp.task('js', ['clean'], function () {
 })
 
 gulp.task('clean', function () {
-    var rimraf = require('gulp-rimraf')
+    var del = require('del')
 
-    return gulp.src(['build', 'js'], { read : false })
-        .pipe(rimraf())
+    return del.sync(['build', 'js'])
 })
 
 gulp.task('build', ['js'], function () {
@@ -46,8 +46,14 @@ gulp.task('blabla', function () {
         pipe(gutil.noop())
 })
 
-gulp.task('dev', ['blabla', 'build'], function () {
-    gulp.watch(['src/**/*.js', 'css/**/*.css', '*.html', '*.json'], ['build'])
+livereload.listen()
+gulp.task('lr', ['build'], function () {
+    livereload.changed()
+})
+
+gulp.task('dev', ['clean', 'blabla', 'build'], function () {
+
+    gulp.watch(['src/**/*.js', 'css/**/*.css', '*.html', '*.json'], ['lr'])
 })
 
 gulp.task('default', ['dev'])
