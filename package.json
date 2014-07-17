@@ -1,0 +1,26 @@
+{
+  "name": "ouirc",
+  "main": "index.html",
+  "dependencies": {
+    "irc": "0.3.x",
+    "underscore": "1.6.0",
+    "moment": "2.6.0",
+    "node-notifier": "3.0.0",
+    
+    "es6-promise": "~0.1.1",
+    "react": "~0.8"
+  },
+  "devDependencies": {
+    "browserify": "~2.36.0",
+    "reactify": "~0.4.0"
+  },
+  "browserify": {
+    "transform": [
+      "reactify"
+    ]
+  },
+  "window": {
+    "title": "Ouirc blu",
+    "icon": "img/icon.png"
+  }
+}
