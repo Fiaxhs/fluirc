@@ -48,6 +48,15 @@ var FluircActions = {
       server_id: server_id,
       channel_id: channel_id
     });
+  },
+
+  sendMessage: function (text, server_id, channel_id){
+    AppDispatcher.handleViewAction({
+      actionType: FluircConstants.SEND_MESSAGE,
+      text: text,
+      server_id: server_id,
+      channel_id: channel_id
+    });
   }
 
 };

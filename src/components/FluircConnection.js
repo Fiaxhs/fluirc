@@ -3,7 +3,7 @@ var FluircActions = require('../actions/FluircActions');
 var id;
 
 function FluircConnection (server_id, options) {
-  id = server_id;
+  var id = server_id;
   var connection = new irc.Client(options.host, options.nick, options);
 
   connection.addListener('raw', function(message){
@@ -15,8 +15,9 @@ function FluircConnection (server_id, options) {
   });
 
   connection.addListener('registered', function() {
-    // TODO: join from config
-    // FluircActions.joinChannel(id, '#pouete');
+    options.channels.forEach(function (channel) {
+      FluircActions.joinChannel(id, channel);
+    })
   });
 
   connection.addListener('names', function (channel, names){

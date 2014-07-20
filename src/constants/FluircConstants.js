@@ -25,5 +25,6 @@ module.exports = keyMirror({
   JOIN_CHANNEL:null,
   SET_NAMES:null,
   HANDLE_MESSAGE:null,
+  SEND_MESSAGE:null,
   SET_FOCUSED_CHANNEL:null
 });

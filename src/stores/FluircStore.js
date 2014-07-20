@@ -10,13 +10,17 @@ var FluircConstants = require('../constants/FluircConstants');
 var FluircActions = require('../actions/FluircActions');
 
 var FluircConnection = require('../components/FluircConnection');
+var UtilsText = require('../utils/Text')
 
 var CHANGE_EVENT = 'change';
 
 var _fluirc = {
   servers:{},
-  focused: true,
-  active_channel: null
+  focused: {
+    server: null,
+    channel: null
+  },
+  history: []
 };
 
 /*----- App data structure ----------------------------------*/
@@ -25,31 +29,34 @@ App = {
   servers:{
     id: {
       id,
+      nick,
       connection,
       name,
       messages: [{type, nick, txt, date}],
       channels: {
         id:{
           id,
-          users: [{name, role}],
-          messages: [{type, nick, txt, date}]
+          users: [{name, role}, ...],
+          messages: [{type, nick, txt, date}, ...]
         },
-        id:{...}
+        ...
       },
       mps: {
         id:{
           id,
           nick,
-          messages: [{type, nick, txt, date}]
+          messages: [{type, nick, txt, date}, ...]
         },
-        id:{...}
+        ...
       }
-    }
+    },
+    ...
   },
   focused: {
     server: id | null,
     channel: id | null
-  }
+  },
+  history:["message said", ...]
 }
 */
 
@@ -61,6 +68,7 @@ function createServer(options) {
   
   var serv = {
     id: id,
+    nick: options.nick,
     connection: connection,
     name: options.name,
     messages: [],
@@ -100,6 +108,18 @@ function setFocusedChannel(server_id, channel_id){
 function handleMessage(nick, text, server_id, channel_id){
   var message = {
     nick: nick,
+    text: text
+  }
+
+  _fluirc.servers[server_id].channels[channel_id].messages.push(message);
+}
+
+function sendMessage(text, server_id, channel_id){
+  var server = _fluirc.servers[server_id];
+
+  server.connection.say(channel_id, UtilsText.plop());
+  var message = {
+    nick: server.nick,
     text: text
   }
 
@@ -152,6 +172,10 @@ AppDispatcher.register(function(payload) {
 
     case FluircConstants.HANDLE_MESSAGE:
       handleMessage(action.nick, action.text, action.server_id, action.channel_id);
+    break;
+
+    case FluircConstants.SEND_MESSAGE:
+      sendMessage(action.text, action.server_id, action.channel_id);
     break;
 
     default:
