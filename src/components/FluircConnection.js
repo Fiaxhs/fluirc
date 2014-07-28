@@ -15,6 +15,7 @@ function FluircConnection (server_id, options) {
   });
 
   connection.addListener('registered', function() {
+    options.channels = options.channels || [];
     options.channels.forEach(function (channel) {
       FluircActions.joinChannel(id, channel);
     })
@@ -26,6 +27,10 @@ function FluircConnection (server_id, options) {
 
   connection.addListener('message#', function (nick, to, text, message){
     FluircActions.handleMessage(nick, text, id, to);
+  });
+
+  connection.addListener('join', function (channel){
+    FluircActions.joinChannel(id, channel);
   });
 
   return connection;

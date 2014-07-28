@@ -10,7 +10,8 @@ var FluircConstants = require('../constants/FluircConstants');
 var FluircActions = require('../actions/FluircActions');
 
 var FluircConnection = require('../components/FluircConnection');
-var UtilsText = require('../utils/Text')
+var UtilsText = require('../utils/Text');
+var keyMirror = require('react/lib/keyMirror');
 
 var CHANGE_EVENT = 'change';
 
@@ -115,9 +116,17 @@ function handleMessage(nick, text, server_id, channel_id){
 }
 
 function sendMessage(text, server_id, channel_id){
+  if (text.substr(0, 1) == '/') {
+    sendCommand(text, server_id, channel_id);
+  } else {
+    say(text, server_id, channel_id);
+  }
+}
+
+function say(text, server_id, channel_id){
   var server = _fluirc.servers[server_id];
 
-  server.connection.say(channel_id, UtilsText.plop());
+  server.connection.say(channel_id, text);
   var message = {
     nick: server.nick,
     text: text
@@ -126,6 +135,56 @@ function sendMessage(text, server_id, channel_id){
   _fluirc.servers[server_id].channels[channel_id].messages.push(message);
 }
 
+function sendCommand(text, server_id, channel_id){
+  var knownCommands = keyMirror({'join': null, 'part': null}),
+    command = text.substr(1, text.indexOf(' ') > 0 ? text.indexOf(' ') - 1 : 99999999).toLowerCase(); // that will do.
+  if (knownCommands[command]) {
+    text = text.substr(command.length + 1).trim();
+    this['sendCommand' + command[0].toUpperCase() + command.slice(1)](text, server_id, channel_id);
+    return;
+  }
+}
+
+// Join command
+sendCommandJoin = function(text, server_id, channel_id) {
+  var chans = text.split(/\s+/),
+    self = this;
+  chans.forEach(function (chan){
+    if (chan.substr(0,1) != '#') {
+        chan = '#' + chan;
+    }
+    joinChannel(server_id, chan);
+  });
+};
+// Part command
+sendCommandPart = function(text, server_id, channel_id) {
+  var chan = text.split(/\s+/)[0];
+    if (chan == '') {
+      chan = _fluirc.focused.channel;
+      text = '';
+    } else {
+      text = text.slice(chan.length);
+      if (chan.substr(0,1) != '#') {
+        chan = '#' + chan;
+      }
+    }
+    _fluirc.servers[server_id].connection.part(chan, text);
+    delete(_fluirc.servers[server_id].channels[channel_id]);
+    _fluirc.focused.channel = Object.keys(_fluirc.servers[server_id].channels)[0];
+};
+// me command
+// sendCommandMe = function(text, server_id, channel_id) {
+//     this.say("\x01ACTION " + text + "\x01");
+// };
+// // nick command
+// sendCommandNick = function(text, server_id, channel_id) {
+//     this.client.send('NICK', nick);
+// };
+
+// // names command
+// sendCommandNames = function(text, server_id, channel_id) {
+//     this.client.send('NAMES', message);
+// };
 
 
 /*----- Actual store ----------------------------------*/
@@ -146,6 +205,11 @@ var FluircStore = merge(EventEmitter.prototype, {
     this.removeListener(CHANGE_EVENT, callback);
   }
 });
+
+
+
+
+
 
 /*----- Register ----------------------------------*/
 AppDispatcher.register(function(payload) {

@@ -24,7 +24,6 @@ var Textbox = React.createClass({
 
   _onKeyPress: function (e) {
     if (e.key == 'Enter') {
-      debugger;
       FluircActions.sendMessage(e.target.value, this.props.focused.server, this.props.focused.channel);
       e.target.value = '';
     }

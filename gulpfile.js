@@ -1,5 +1,4 @@
 var gulp = require('gulp')
-,   livereload = require('gulp-livereload')
 
 gulp.task('js', function () {
     var react = require('gulp-react')
@@ -44,11 +43,6 @@ gulp.task('blabla', function () {
 
     return gulp.src('')
         pipe(gutil.noop())
-})
-
-livereload.listen()
-gulp.task('lr', ['build'], function () {
-    livereload.changed()
 })
 
 gulp.task('dev', ['clean', 'blabla', 'build'], function () {
