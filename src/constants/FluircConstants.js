@@ -26,5 +26,7 @@ module.exports = keyMirror({
   SET_NAMES:null,
   HANDLE_MESSAGE:null,
   SEND_MESSAGE:null,
+  ADD_USER:null,
+  REMOVE_USER:null,
   SET_FOCUSED_CHANNEL:null
 });

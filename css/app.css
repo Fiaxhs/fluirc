@@ -139,7 +139,8 @@ html,body{
   margin-right: 5px;
   text-align: center;
 }
-#servers-container .active .unread{
+#servers-container .active .unread,
+#servers-container .unread.hidden{
   display: none;
 }
 

@@ -14,15 +14,28 @@ var Channel = React.createClass({
     var channel = this.props.channel
       focused = this.props.focused;
 
+    var active = focused.channel == channel.id && focused.server == this.props.server_id;
     var classes = cx({
       'channel': true,
-      'active': focused.channel == channel.id && focused.server == this.props.server_id
+      'active': active
+    });
+
+    var unread = 0;
+    for (var message in channel.messages) {
+      if (channel.messages[message].date > channel.last_seen) {
+        unread++;
+      }
+    }
+
+    var unreadClasses = cx({
+      "unread": true,
+      "hidden": active || unread == 0
     });
 
     return (
       <div className={classes} onClick={this._onClick}>
         {channel.id}
-        <span className="unread">0</span>
+        <span className={unreadClasses}>{unread}</span>
       </div>
     );
   },

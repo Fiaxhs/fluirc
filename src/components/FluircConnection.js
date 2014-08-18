@@ -29,8 +29,22 @@ function FluircConnection (server_id, options) {
     FluircActions.handleMessage(nick, text, id, to);
   });
 
-  connection.addListener('join', function (channel){
-    FluircActions.joinChannel(id, channel);
+  connection.addListener('join', function (channel, nick){
+    var FluircStore = require('../stores/FluircStore');
+    if (FluircStore.hasChannel(id, channel)) {
+      FluircActions.addUser(nick, id, channel);
+    } else {
+      FluircActions.joinChannel(id, channel);
+    }
+  });
+
+  connection.addListener('part', function (channel, nick){
+    var FluircStore = require('../stores/FluircStore');
+    if (FluircStore.hasChannel(id, channel)) {
+      FluircActions.removeUser(nick, id, channel);
+    } else {
+      FluircActions.partChannel(id, channel);
+    }
   });
 
   return connection;

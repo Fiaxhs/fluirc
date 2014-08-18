@@ -57,6 +57,24 @@ var FluircActions = {
       server_id: server_id,
       channel_id: channel_id
     });
+  },
+
+  addUser: function (nick, server_id, channel_id){
+    AppDispatcher.handleViewAction({
+      actionType: FluircConstants.ADD_USER,
+      nick: nick,
+      server_id: server_id,
+      channel_id: channel_id
+    });
+  },
+
+  removeUser: function (nick, server_id, channel_id){
+    AppDispatcher.handleViewAction({
+      actionType: FluircConstants.REMOVE_USER,
+      nick: nick,
+      server_id: server_id,
+      channel_id: channel_id
+    });
   }
 
 };

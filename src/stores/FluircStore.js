@@ -34,11 +34,13 @@ App = {
       connection,
       name,
       messages: [{type, nick, txt, date}],
+      last_seen: date,
       channels: {
         id:{
           id,
-          users: [{name, role}, ...],
-          messages: [{type, nick, txt, date}, ...]
+          users: {name:"role"},
+          messages: [{type, nick, txt, date}, ...],
+          last_seen: date
         },
         ...
       },
@@ -46,7 +48,8 @@ App = {
         id:{
           id,
           nick,
-          messages: [{type, nick, txt, date}, ...]
+          messages: [{type, nick, txt, date}, ...],
+          last_seen: date
         },
         ...
       }
@@ -90,10 +93,19 @@ function joinChannel(server_id, channel_id){
   var connection = _fluirc.servers[server_id].connection;
     connection.join(channel_id);
 
+  connection.addListener('join#' + channel_id, function (channel, nick){
+    FluircActions.addUser(nick, server_id, channel_id);
+  });
+
+  connection.addListener('part#' + channel_id, function (channel, nick){
+    FluircActions.removeUser(nick, server_id, channel_id);
+  });
+
   var chan = {
     id: channel_id,
-    users: [],
-    messages: []
+    users: {},
+    messages: [],
+    last_seen: 0
   };
 
   _fluirc.servers[server_id].channels[channel_id] = chan;
@@ -101,18 +113,36 @@ function joinChannel(server_id, channel_id){
 
 function setFocusedChannel(server_id, channel_id){
   _fluirc.focused = {server: server_id, channel: channel_id};
+  if (channel_id) {
+    _fluirc.servers[server_id].channels[channel_id].last_seen = Date.now();
+  } else {
+    _fluirc.servers[server_id].last_seen = Date.now();
+  }
 }
 
+
+/*----- Users ----------------------------------*/
+
+function removeUser(nick, server_id, channel_id){
+  delete _fluirc.servers[server_id].channels[channel_id].users[nick];
+  addMessage(null, '← ' + nick + ' left the channel.', server_id, channel_id);
+}
+
+function addUser(nick, server_id, channel_id){
+  _fluirc.servers[server_id].channels[channel_id].users[nick] = "";
+  addMessage(null, '→ ' + nick + ' joined the channel.', server_id, channel_id);
+}
 
 /*----- Messages ----------------------------------*/
 
 function handleMessage(nick, text, server_id, channel_id){
-  var message = {
-    nick: nick,
-    text: text
-  }
+  var server = _fluirc.servers[server_id];
+  var channel = server.channels[channel_id];
+  addMessage(nick, text, server_id, channel_id);
 
-  _fluirc.servers[server_id].channels[channel_id].messages.push(message);
+  if (server.id == _fluirc.focused.server && channel.id == _fluirc.focused.channel) {
+    channel.last_seen = Date.now();
+  }
 }
 
 function sendMessage(text, server_id, channel_id){
@@ -127,10 +157,16 @@ function say(text, server_id, channel_id){
   var server = _fluirc.servers[server_id];
 
   server.connection.say(channel_id, text);
+  addMessage(server.nick, text, server_id, channel_id);
+  server.channel.last_seen = Date.now();
+}
+
+function addMessage(nick, text, server_id, channel_id) {
   var message = {
-    nick: server.nick,
-    text: text
-  }
+    nick: nick,
+    text: text,
+    date: Date.now()
+  };
 
   _fluirc.servers[server_id].channels[channel_id].messages.push(message);
 }
@@ -203,6 +239,10 @@ var FluircStore = merge(EventEmitter.prototype, {
 
   removeChangeListener: function(callback) {
     this.removeListener(CHANGE_EVENT, callback);
+  },
+
+  hasChannel: function (server_id, channel_id){
+    return !!(_fluirc.servers[server_id] && _fluirc.servers[server_id].channels[channel_id]);
   }
 });
 
@@ -240,6 +280,14 @@ AppDispatcher.register(function(payload) {
 
     case FluircConstants.SEND_MESSAGE:
       sendMessage(action.text, action.server_id, action.channel_id);
+    break;
+
+    case FluircConstants.ADD_USER:
+      addUser(action.nick, action.server_id, action.channel_id);
+    break;
+
+    case FluircConstants.REMOVE_USER:
+      removeUser(action.nick, action.server_id, action.channel_id);
     break;
 
     default:
